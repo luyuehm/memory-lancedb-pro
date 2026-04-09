@@ -276,6 +276,17 @@ function resolveHookAgentId(
     : parseAgentIdFromSessionKey(sessionKey)) || "main";
 }
 
+
+function isReflectionMetadataType(type: unknown): boolean {
+  return type === "memory-reflection-item" || type === "memory-reflection" || type === "memory-reflection-mapped";
+}
+
+function isOwnedByAgent(metadata: Record<string, unknown>, agentId: string): boolean {
+  const owner = typeof metadata.agentId === "string" ? metadata.agentId.trim() : "";
+  if (!owner) return true;
+  return owner === agentId || owner === "main";
+}
+
 function summarizeAgentEndMessages(messages: unknown[]): string {
   const roleCounts = new Map<string, number>();
   let textBlocks = 0;

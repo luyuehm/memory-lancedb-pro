@@ -96,7 +96,7 @@ async function seedReflection(dbPath, agentId) {
     command: "command:new",
     scope: "global",
     toolErrorSignals: [],
-    runAt: Date.UTC(2026, 2, 12, 15, 0, 0),
+    runAt: Date.now(),
     usedFallback: false,
     embedPassage: async () => FIXED_VECTOR,
     vectorSearch: async () => [],
