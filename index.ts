@@ -206,14 +206,21 @@ function getDefaultDbPath(): string {
   return join(home, ".openclaw", "memory", "lancedb-pro");
 }
 
-function getDefaultWorkspaceDir(): string {
+function getDefaultWorkspaceDir(cfg?: OpenClawConfig): string {
+  const configured = typeof cfg?.agents?.defaults?.workspace === "string"
+    ? cfg.agents.defaults.workspace.trim()
+    : "";
+  if (configured) return configured;
   const home = homedir();
   return join(home, ".openclaw", "workspace");
 }
 
-function resolveWorkspaceDirFromContext(context: Record<string, unknown> | undefined): string {
+function resolveWorkspaceDirFromContext(
+  context: Record<string, unknown> | undefined,
+  cfg?: OpenClawConfig,
+): string {
   const runtimePath = typeof context?.workspaceDir === "string" ? context.workspaceDir.trim() : "";
-  return runtimePath || getDefaultWorkspaceDir();
+  return runtimePath || getDefaultWorkspaceDir(cfg);
 }
 
 function resolveEnvVars(value: string): string {
@@ -1943,7 +1950,7 @@ const memoryLanceDBProPlugin = {
       try {
         const memories = await collectDreamingMemories();
         const result = await writeDreamingArtifacts({
-          workspaceDir: workspaceDir || getDefaultWorkspaceDir(),
+          workspaceDir: workspaceDir || getDefaultWorkspaceDir(api.config),
           memories,
           config: dreamingConfig,
         });
@@ -2138,7 +2145,7 @@ const memoryLanceDBProPlugin = {
         scopeManager,
         embedder,
         agentId: undefined, // Will be determined at runtime from context
-        workspaceDir: getDefaultWorkspaceDir(),
+        workspaceDir: getDefaultWorkspaceDir(api.config),
         mdMirror,
         workspaceBoundary: config.workspaceBoundary,
       },
@@ -2783,7 +2790,7 @@ const memoryLanceDBProPlugin = {
         try {
           const context = (event.context || {}) as Record<string, unknown>;
           const sessionKey = typeof event.sessionKey === "string" ? event.sessionKey : "";
-          const workspaceDir = resolveWorkspaceDirFromContext(context);
+          const workspaceDir = resolveWorkspaceDirFromContext(context, api.config);
 
           if (isInternalReflectionSessionKey(sessionKey)) {
             return;
@@ -3039,7 +3046,7 @@ const memoryLanceDBProPlugin = {
           const action = String(event?.action || "unknown");
           const context = (event.context || {}) as Record<string, unknown>;
           const cfg = context.cfg;
-          const workspaceDir = resolveWorkspaceDirFromContext(context);
+          const workspaceDir = resolveWorkspaceDirFromContext(context, api.config);
           if (!cfg) {
             api.logger.warn(`memory-reflection: command:${action} missing cfg in hook context; skip reflection`);
             return;
@@ -3326,7 +3333,7 @@ const memoryLanceDBProPlugin = {
           const defaultScope = isSystemBypassId(agentId)
             ? config.scopes?.default ?? "global"
             : scopeManager.getDefaultScope(agentId);
-          const workspaceDir = resolveWorkspaceDirFromContext(context);
+          const workspaceDir = resolveWorkspaceDirFromContext(context, api.config);
           const cfg = context.cfg;
           const sessionEntry = (context.previousSessionEntry || context.sessionEntry || {}) as Record<string, unknown>;
           const currentSessionId = typeof sessionEntry.sessionId === "string" ? sessionEntry.sessionId : "unknown";
@@ -3561,7 +3568,7 @@ const memoryLanceDBProPlugin = {
         setTimeout(() => void runStartupChecks(), 0);
 
         if (config.dreaming?.enabled) {
-          const serviceWorkspaceDir = getDefaultWorkspaceDir();
+          const serviceWorkspaceDir = getDefaultWorkspaceDir(api.config);
           setTimeout(() => void runDreamingSweep(serviceWorkspaceDir, "startup"), 10_000);
           dreamingTimer = setInterval(() => {
             const slot = getDreamingScheduleSlot(
