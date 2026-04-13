@@ -1,5 +1,19 @@
 # Changelog
 
+## 1.1.0-beta.12 (Dreaming Workspace Alignment)
+
+This is a **beta** release published under the npm dist-tag **`beta`** (it does not affect the stable `latest` channel).
+
+Highlights:
+- **Fix**: dreaming outputs now honor the configured OpenClaw workspace before falling back to the legacy `~/.openclaw/workspace` path
+- **Fix**: background dreaming sweep startup/scheduled runs align with `agents.defaults.workspace` instead of always writing to the old single-workspace directory
+- **Fix**: memory tool registration now uses the configured workspace default, improving consistency with multi-workspace OpenClaw setups
+
+Notes:
+- This release does **not** add `wiki.importInsights` support to `memory-lancedb-pro`; that method remains part of `memory-wiki` and should be gated by the UI/plugin availability
+
+---
+
 ## 1.1.0-beta.2 (Smart Memory Beta + Access Reinforcement)
 
 This is a **beta** release published under the npm dist-tag **`beta`** (it does not affect the stable `latest` channel).

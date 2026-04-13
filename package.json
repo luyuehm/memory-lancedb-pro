@@ -1,6 +1,6 @@
 {
   "name": "memory-lancedb-pro",
-  "version": "1.1.0-beta.10",
+  "version": "1.1.0-beta.12",
   "description": "Standalone OpenClaw LanceDB memory plugin with hybrid retrieval, lifecycle management, reflection, and Dreaming-compatible artifacts",
   "type": "module",
   "main": "index.ts",
